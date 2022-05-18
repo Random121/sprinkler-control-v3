@@ -18,18 +18,25 @@ class RelayBoard:
     def is_relay(self, id: str) -> bool:
         return id in self._relays
 
-    def enable(self, ids: list = None, duration: float = None):
-        if not ids:
-            for relay in self._relays.values():
-                relay.enable(duration)
-        else:
-            for id in ids:
-                if not self.is_relay(id):
-                    raise InvalidRelay(id)
-                self._relays[id].enable(duration)
+    def enable(self, ids: list, duration: float = None):
+        for id in ids:
+            if not self.is_relay(id):
+                raise InvalidRelay(id)
+            self._relays[id].enable(duration)
+
+    # disabled as raspberry pi can only open one relay at once
+    # def enable(self, ids: list = None, duration: float = None):
+    #     if ids is None:
+    #         for relay in self._relays.values():
+    #             relay.enable(duration)
+    #     else:
+    #         for id in ids:
+    #             if not self.is_relay(id):
+    #                 raise InvalidRelay(id)
+    #             self._relays[id].enable(duration)
 
     def disable(self, ids: list = None):
-        if not ids:
+        if ids is None:
             for relay in self._relays.values():
                 relay.disable()
         else:
@@ -39,7 +46,7 @@ class RelayBoard:
                 self._relays[id].disable()
 
     def cancel_timer(self, ids: list = None):
-        if not ids:
+        if ids is None:
             for relay in self._relays.values():
                 relay.cancel_timer()
         else:
@@ -49,7 +56,7 @@ class RelayBoard:
                 self._relays[id].cancel_timer()
 
     def get_info(self, ids: list = None):
-        if not ids:
+        if ids is None:
             return {id: relay.info for id, relay in self._relays.items()}
 
         info_dict = {}

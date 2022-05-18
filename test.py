@@ -1,12 +1,25 @@
-from models.Relay import RelayBoard
+# from time import sleep
+# from models.Relay import RelayBoard
+# from gpiozero.pins.mock import MockFactory
+# from pprint import pprint
 
-RELAY_PINOUT = {
-    "GPIO_6": 6,
-    "GPIO_13": 13,
-    "GPIO_19": 19,
-    "GPIO_26": 26,
-}
+# RELAY_PINOUT = {
+#     "GPIO_6": 6,
+#     "GPIO_13": 13,
+#     "GPIO_19": 19,
+#     "GPIO_26": 26,
+# }
 
-board = RelayBoard(RELAY_PINOUT)
+# board = RelayBoard(RELAY_PINOUT, pin_factory=MockFactory())
 
-board.enable(["GPIO_6"], 10)
+# board.enable([], 19)
+
+# pprint(board.get_info())
+
+# sleep(3)
+
+# pprint(board.get_info(["GPIO_262"]))
+
+# board.enable([], 5)
+
+# pprint(board.get_info())

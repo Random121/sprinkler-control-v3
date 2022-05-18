@@ -2,6 +2,7 @@ from gpiozero import OutputDevice
 from .timer import BetterTimer
 from exceptions import InvalidRelayDuration
 
+
 class RelayDevice(OutputDevice):
     def __init__(
         self,
