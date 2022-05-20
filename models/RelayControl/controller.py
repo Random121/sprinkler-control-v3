@@ -10,10 +10,10 @@ class RelayBoardController:
     # NOTE: action request received by this function must be parsed
     def dispatch_action(self, action_request: dict):
 
-        if "method" not in action_request:
+        if "method_name" not in action_request:
             raise Exception(f"Action request is not parsed")
 
-        method_name: str = action_request.get("method")
+        method_name: str = action_request.get("method_name")
         method: MethodType = getattr(self.board, method_name, None)
 
         if not isinstance(method, MethodType):

@@ -12,14 +12,14 @@ class ActionRequestParser:
 
         self.validate_request(action_request)
 
-        action: str = action_request.get("action")
+        action_name: str = action_request.get("action_name")
 
-        method: str = self.lookup_method(action)
-        arguments: list = self.parse_arguments(method, action_request.get("arguments"))
+        method_name: str = self.lookup_method(action_name)
+        arguments: list = self.parse_arguments(method_name, action_request.get("arguments"))
 
         return {
-            "action": action,
-            "method": method,
+            "action_name": action_name,
+            "method_name": method_name,
             "arguments": arguments,
         }
 
@@ -27,10 +27,10 @@ class ActionRequestParser:
 
         template: dict  # for type annotation
         for template in templates:
-            method: str = template.get("method")
+            method: str = template.get("method_name")
 
             # build method name lookup table
-            for name in template.get("action"):
+            for name in template.get("action_name"):
                 self.method_lookup[name] = method
 
             # build required arg lookup table

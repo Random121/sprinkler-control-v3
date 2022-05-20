@@ -22,18 +22,9 @@ class RelayBoard:
         for id in ids:
             if not self.is_relay(id):
                 raise InvalidRelay(id)
-            self._relays[id].enable(duration)
 
-    # disabled as raspberry pi can only open one relay at once
-    # def enable(self, ids: list = None, duration: float = None):
-    #     if ids is None:
-    #         for relay in self._relays.values():
-    #             relay.enable(duration)
-    #     else:
-    #         for id in ids:
-    #             if not self.is_relay(id):
-    #                 raise InvalidRelay(id)
-    #             self._relays[id].enable(duration)
+            self.disable()  # raspberry pi can only handle one relay open at once
+            self._relays[id].enable(duration)
 
     def disable(self, ids: list = None):
         if ids is None:
