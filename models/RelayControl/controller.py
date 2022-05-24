@@ -1,17 +1,20 @@
 from types import MethodType
+from models.Parser import ActionRequestParser
 from models.Relay import RelayBoard
 from exceptions import *
 
 
 class RelayBoardController:
-    def __init__(self, relay_board: RelayBoard) -> None:
+    def __init__(
+        self,
+        relay_board: RelayBoard,
+        relay_action_parser: ActionRequestParser,
+    ) -> None:
         self.board = relay_board
+        self.parser = relay_action_parser
 
-    # NOTE: action request received by this function must be parsed
     def dispatch_action(self, action_request: dict):
-
-        if "method_name" not in action_request:
-            raise Exception(f"Action request is not parsed")
+        action_request = self.parser.parse(action_request)
 
         method_name: str = action_request.get("method_name")
         method: MethodType = getattr(self.board, method_name, None)

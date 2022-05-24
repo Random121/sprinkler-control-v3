@@ -4,7 +4,7 @@ from flask_restful import abort, Resource, reqparse
 
 import constants
 from exceptions import *
-from models.Events import EventEmitter
+from models.Parser import ActionRequestParser
 from models.RelayControl import RelayBoardController
 
 relay_post_parser = reqparse.RequestParser(
@@ -21,14 +21,19 @@ relay_post_parser.add_argument(
     "arguments",
     type=dict,
     help="Arguments list is required (even if empty)",
-    required=True
+    required=True,
 )
 
 # api for controlling relays
 class RelayControlApi(Resource):
-    def __init__(self, relay_board_controller: RelayBoardController) -> None:
+    def __init__(
+        self,
+        relay_board_controller: RelayBoardController,
+        relay_action_parser: ActionRequestParser,
+    ) -> None:
         super().__init__()
         self.board_controller = relay_board_controller
+        self.relay_action_parser = relay_action_parser
 
     # handles the exceptions raised when a board controller
     # function is called
@@ -48,19 +53,18 @@ class RelayControlApi(Resource):
         except SprinklerControlBaseException:
             print(f"[UNHANDLED EXCEPTION] {traceback.format_exc()}", flush=True)
 
-    def get(self, relay_id: str):
+    def get(self, relay_id: str = None):
         self.safe_call(self.board_controller.get_info, relay_id)
 
-    def post(self, relay_id: str):
+    def post(self, relay_id: str = None):
         action_request: dict = relay_post_parser.parse_args()
 
-        # allow flexible insertion of relay id
+        # more flexibility in where relay_id is specified
         if "relay_id" not in action_request["arguments"]:
             action_request["arguments"]["relay_id"] = relay_id
 
         self.safe_call(self.board_controller.dispatch_action, action_request)
 
-        EventEmitter.emit("relay_update")
 
 # api for controlling scheduler
 class SchedulerControlApi(Resource):

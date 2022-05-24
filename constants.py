@@ -15,3 +15,21 @@ RELAY_PINOUT = {
     "GPIO_19": 19,
     "GPIO_26": 26,
 }
+
+RELAY_ACTION_TEMPLATES_V1 = [
+    {
+        "action_name": ["enable"],
+        "method_name": "enable",
+        "required_arguments": ["relay_id", "duration"],
+    },
+    {
+        "action_name": ["disable"],
+        "method_name": "disable",
+        "required_arguments": ["relay_id"],
+    },
+    {
+        "action_name": ["cancel_timer"],
+        "method_name": "cancel_timer",
+        "required_arguments": ["relay_id"],
+    },
+]

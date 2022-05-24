@@ -1,5 +1,8 @@
+from gpiozero import Factory
+
 from exceptions import InvalidRelay
 from .device import RelayDevice
+from models.Events import EventEmitter
 
 
 class RelayBoard:
@@ -8,10 +11,11 @@ class RelayBoard:
         pinout: dict = None,
         active_high: bool = True,
         initial_value: bool = False,
-        pin_factory=None,
-    ) -> None:
+        pin_factory: Factory = None,
+    ):
+        self.events = EventEmitter()
         self._relays = {
-            id: RelayDevice(pin, active_high, initial_value, pin_factory)
+            id: RelayDevice(pin, active_high, initial_value, pin_factory, self.events)
             for id, pin in pinout.items()
         }
 

@@ -15,7 +15,7 @@ class InvalidRelay(SprinklerControlBaseException):
 class InvalidRelayDuration(SprinklerControlBaseException):
     """
     This exception is raised when the duration to enable a relay
-    is below or equal to 0
+    is less than 0
     """
 
 

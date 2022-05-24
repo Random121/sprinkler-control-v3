@@ -3,63 +3,47 @@ from typing import Callable
 
 # my python alternative for the nodejs EventEmitter
 class EventEmitter:
-    __events = {}
+    def __init__(self) -> None:
+        self._events = {}
 
-    @classmethod
-    def subscribe(cls, event_name: str, listener: Callable) -> None:
-        listener_list: list = cls.__events.setdefault(event_name, [])
-        listener_list.append(listener)
+    def add_listener(self, event: str, listener: Callable):
+        listeners: list = self._events.setdefault(event, [])
+        listeners.append(listener)
 
-    on = subscribe
+    on = add_listener
 
-    @classmethod
-    def __once_wrap_listener(cls, event_name: str, listener: Callable) -> Callable:
-        listener_info = {
-            "called": False,
-            # "wrapped_function": None,
-        }
+    def remove_listener(self, event: str, listener: Callable):
+        listeners: list = self._events.get(event)
+        if listeners:
+            listeners.remove(listener)
+            # NOTE: can be uncommented for memory optimization
+            # if len(listeners) == 0:
+            #     del self._events[event]
 
-        def wrapped_function(*args, **kwargs):
-            if not listener_info["called"]:
-                listener_info["called"] = True
-                cls.unsubscribe(event_name, wrapped_function)
+    off = remove_listener
+
+    # NOTE: internal method and should not be public
+    def __create_once_wrapper(self, event: str, listener: Callable):
+        function_called: bool = False
+
+        def wrapped_listener(*args, **kwargs):
+            nonlocal function_called
+            if not function_called:
+                function_called = True
+                self.remove_listener(event, wrapped_listener)
                 listener(*args, **kwargs)
 
-        # listener_info["wrapped_function"] = wrapped_function
+        return wrapped_listener
 
-        return wrapped_function
+    def add_once_listener(self, event: str, listener: Callable):
+        self.add_listener(event, self.__create_once_wrapper(event, listener))
 
-    @classmethod
-    def subscribe_once(cls, event_name: str, listener: Callable) -> None:
-        cls.subscribe(event_name, cls.__once_wrap_listener(event_name, listener))
+    once = add_once_listener
 
-    once = subscribe_once
-
-    @classmethod
-    def unsubscribe(cls, event_name: str, listener: Callable) -> None:
-        listener_list: list = cls.__events.get(event_name)
-        if listener_list is not None:
-            listener_list.remove(listener)
-            # delete the entire list because nothing is there
-            if len(listener_list) == 0:
-                del cls.__events[event_name]
-
-    off = unsubscribe
-
-    @classmethod
-    def emit(cls, event_name: str, *args, **kwargs) -> None:
-        # make a clone of the list so we can iterate it while
-        # modifying it (not the best idea)
-        listener_list: list = list(cls.__events.get(event_name))
-        if listener_list is not None:
-            for listener in listener_list:
+    def emit(self, event: str, *args, **kwargs):
+        # make a clone of the list so it can be iterated while being modified
+        # TODO: find a better way of doing this
+        listeners: list = list(self._events.get(event))
+        if listeners:
+            for listener in listeners:
                 listener(*args, **kwargs)
-
-
-# emitter = EventEmitter()
-
-# emitter.once("test", (lambda : print("ASD")))
-# emitter.once("test", (lambda : print("ASD2")))
-# emitter.subscribe("test", (lambda : print("ASD21")))
-
-# emitter.emit("test")
