@@ -70,8 +70,8 @@ def clean_up():
     """
     reset all relays before python shutdown
     """
-    flask_socketio.stop()
     relay_board.disable()
+    print("[SUCCESSFULLY CLEAN UP]", flush=True)
 
 
 def main():
