@@ -1,7 +1,7 @@
 import RelayControlSocket from "./RelayControl.js";
 
 const RelayControl = new RelayControlSocket(
-    "ws://192.168.0.27:42488/v1/socketio/sprinklers"
+    "127.0.0.1:42488/v1/socketio/sprinklers"
 );
 
 function getToggleAction(toggle) {
@@ -19,9 +19,33 @@ function updateToggles(relayInfo) {
         button.value = status["is_active"].toString();
 
         $(button).click(function () {
-            this.value = !(this.value === "true");
-            const toggleAction = this.value === "true" ? "enable" : "disable";
-            RelayControl.sendAction(toggleAction, this.id);
+            // this.value = !(this.value === "true");
+            const toggleAction = this.value === "true" ? "disable" : "enable";
+
+            let relayDuration;
+
+            if (toggleAction === "enable") {
+                let input = prompt("Enter sprinkler on duration in minutes. (default 10)");
+
+                // user cancelled interaction
+                if (input === null) return;
+
+                // default duration (10 minutes)
+                if (input === '') input = 10;
+
+                const parsedInput = parseFloat(input);
+
+                // prompt user if invalid input
+                if (input <= 0 || isNaN(parsedInput)) {
+                    alert("\n Inputted duration is invalid.")
+                    return;
+                }
+
+                // convert minutes to seconds
+                relayDuration = parsedInput * 60;
+            }
+
+            RelayControl.sendAction(toggleAction, this.id, relayDuration);
         });
 
         $("#toggle-group").append(button);

@@ -1,8 +1,8 @@
 from gpiozero import Factory
 
-from exceptions import InvalidRelay
 from .device import RelayDevice
 from models.Events import EventEmitter
+from exceptions import InvalidRelay
 
 
 class RelayBoard:
@@ -13,24 +13,27 @@ class RelayBoard:
         initial_value: bool = False,
         pin_factory: Factory = None,
     ):
-        self.events = EventEmitter()
+        self.emitter = EventEmitter()
         self._relays = {
-            id: RelayDevice(pin, active_high, initial_value, pin_factory, self.events)
+            id: RelayDevice(pin, active_high, initial_value, pin_factory, self.emitter)
             for id, pin in pinout.items()
         }
 
-    def is_relay(self, id: str) -> bool:
-        return id in self._relays
+    #################
+    # Private methods
+    #################
 
-    def enable(self, ids: list, duration: float = None):
-        for id in ids:
-            if not self.is_relay(id):
-                raise InvalidRelay(id)
+    def _enable(self, ids: list = None, duration: float = None):
+        if ids is None:
+            for relay in self._relays.values():
+                relay.enable(duration)
+        else:
+            for id in ids:
+                if not self.is_relay(id):
+                    raise InvalidRelay(id)
+                self._relays[id].enable(duration)
 
-            self.disable()  # raspberry pi can only handle one relay open at once
-            self._relays[id].enable(duration)
-
-    def disable(self, ids: list = None):
+    def _disable(self, ids: list = None):
         if ids is None:
             for relay in self._relays.values():
                 relay.disable()
@@ -40,7 +43,7 @@ class RelayBoard:
                     raise InvalidRelay(id)
                 self._relays[id].disable()
 
-    def cancel_timer(self, ids: list = None):
+    def _cancel_timer(self, ids: list = None):
         if ids is None:
             for relay in self._relays.values():
                 relay.cancel_timer()
@@ -50,24 +53,66 @@ class RelayBoard:
                     raise InvalidRelay(id)
                 self._relays[id].cancel_timer()
 
-    def get_info(self, ids: list = None):
+    def _get_info(self, ids: list = None):
         if ids is None:
             return {id: relay.info for id, relay in self._relays.items()}
 
-        info_dict = {}
+        infos = {}
 
         for id in ids:
             if not self.is_relay(id):
                 raise InvalidRelay(id)
-            info_dict[id] = self._relays[id].info
+            infos[id] = self._relays[id].info
+
+        return infos
+
+    ################
+    # Public methods
+    ################
+
+    def is_relay(self, id: str) -> bool:
+        return id in self._relays
+
+    # enable which is safe for raspberry pi
+    def enable(self, id: list = None, duration: float = None):
+        if id is None or duration is None:
+            return
+
+        if isinstance(id, str):
+            id = [id]
+
+        self._disable()
+        self._enable(id, duration)
+        self.emitter.emit("relay_update")
+
+    def disable(self, ids: list = None):
+        if isinstance(ids, str):
+            ids = [ids]
+
+        self._disable(ids)
+        self.emitter.emit("relay_update")
+
+    def cancel_timer(self, ids: list = None):
+        if isinstance(ids, str):
+            ids = [ids]
+
+        self._cancel_timer(ids)
+        self.emitter.emit("relay_update")
+
+    def get_info(self, ids: list = None):
+        if isinstance(ids, str):
+            ids = [ids]
+
+        infos = self._get_info(ids)
 
         # make single relay info simpler
-        if len(info_dict) == 1:
-            return info_dict[list(info_dict)[0]]
-        else:
-            return info_dict
+        if len(infos) == 1:
+            return infos[list(infos)[0]]
+
+        return infos
 
     def get_relay(self, id: str):
         if not self.is_relay(id):
             raise InvalidRelay(id)
+
         return self._relays[id]

@@ -1,4 +1,5 @@
 from types import MethodType
+
 from models.Parser import ActionRequestParser
 from models.Relay import RelayBoard
 from exceptions import *

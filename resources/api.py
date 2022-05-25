@@ -24,37 +24,34 @@ relay_post_parser.add_argument(
     required=True,
 )
 
+
+# handles the exceptions raised when a board controller
+# function is called
+def board_controller_call(function: Callable, *args, **kwargs):
+    try:
+        return function(*args, **kwargs)
+    except InvalidAction:
+        abort(400, message="Specified action is invalid")
+    except InvalidRelay:
+        print(traceback.format_exc())
+        abort(400, message="Specified relay is invalid")
+    except InvalidActionRequest:
+        abort(400, message="Action request is in an invalid format")
+    except MissingRequiredArgument:
+        abort(400, message="Action request is missing required argument(s)")
+    except InvalidRelayDuration:
+        abort(400, message="Duration must be greater than 0")
+    except SprinklerControlBaseException:
+        print(f"[UNHANDLED EXCEPTION] {traceback.format_exc()}", flush=True)
+
+
 # api for controlling relays
 class RelayControlApi(Resource):
-    def __init__(
-        self,
-        relay_board_controller: RelayBoardController,
-        relay_action_parser: ActionRequestParser,
-    ) -> None:
-        super().__init__()
+    def __init__(self, relay_board_controller: RelayBoardController) -> None:
         self.board_controller = relay_board_controller
-        self.relay_action_parser = relay_action_parser
-
-    # handles the exceptions raised when a board controller
-    # function is called
-    def safe_call(self, function: Callable, *args, **kwargs):
-        try:
-            function(*args, **kwargs)
-        except InvalidAction:
-            abort(400, message="Specified action is invalid")
-        except InvalidRelay:
-            abort(400, message="Specified relay is invalid")
-        except InvalidActionRequest:
-            abort(400, message="Action request is in an invalid format")
-        except MissingRequiredArgument:
-            abort(400, message="Action request is missing required argument(s)")
-        except InvalidRelayDuration:
-            abort(400, message="Duration must be greater than 0")
-        except SprinklerControlBaseException:
-            print(f"[UNHANDLED EXCEPTION] {traceback.format_exc()}", flush=True)
 
     def get(self, relay_id: str = None):
-        self.safe_call(self.board_controller.get_info, relay_id)
+        return board_controller_call(self.board_controller.get_info, relay_id)
 
     def post(self, relay_id: str = None):
         action_request: dict = relay_post_parser.parse_args()
@@ -63,7 +60,7 @@ class RelayControlApi(Resource):
         if "relay_id" not in action_request["arguments"]:
             action_request["arguments"]["relay_id"] = relay_id
 
-        self.safe_call(self.board_controller.dispatch_action, action_request)
+        board_controller_call(self.board_controller.dispatch_action, action_request)
 
 
 # api for controlling scheduler

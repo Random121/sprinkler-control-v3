@@ -6,24 +6,13 @@ class ActionRequestParser:
         self.method_lookup = {}
         self.required_args_lookup = {}
 
-        self.build_lookup_tables(templates)
+        self._build_lookup_tables(templates)
 
-    def parse(self, action_request: dict) -> dict:
+    #################
+    # Private methods
+    #################
 
-        self.validate_request(action_request)
-
-        action_name: str = action_request.get("action_name")
-
-        method_name: str = self.lookup_method(action_name)
-        arguments: list = self.parse_arguments(method_name, action_request.get("arguments"))
-
-        return {
-            "action_name": action_name,
-            "method_name": method_name,
-            "arguments": arguments,
-        }
-
-    def build_lookup_tables(self, templates: list):
+    def _build_lookup_tables(self, templates: list):
 
         template: dict  # for type annotation
         for template in templates:
@@ -35,6 +24,27 @@ class ActionRequestParser:
 
             # build required arg lookup table
             self.required_args_lookup[method] = template.get("required_arguments")
+
+    ################
+    # Public methods
+    ################
+
+    def parse(self, action_request: dict) -> dict:
+
+        self.validate_request(action_request)
+
+        action_name: str = action_request.get("action_name")
+
+        method_name: str = self.lookup_method(action_name)
+        arguments: list = self.parse_arguments(
+            method_name, action_request.get("arguments")
+        )
+
+        return {
+            "action_name": action_name,
+            "method_name": method_name,
+            "arguments": arguments,
+        }
 
     def validate_request(self, action_request: dict):
 

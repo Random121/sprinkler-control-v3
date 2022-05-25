@@ -17,8 +17,8 @@ class RelaySocketio:
         self.namespace = socketio_namespace
 
         self.board_controller = relay_board_controller
+        self.board_controller.board.emitter.on("relay_update", self.send_relay_update)
 
-        self.board_controller.board.events.on("relay_update", self.send_relay_update)
         self.define_routes()
 
     def define_routes(self):

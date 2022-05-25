@@ -1,7 +1,7 @@
 DEBUG = True
 USE_RELOADER = False
 
-HOST = "0.0.0.0"
+HOST = "127.0.0.1"
 PORT = 42488
 
 SECRET_KEY = "6acd1bb4899753e108b315d5f8a147edd4f958d17523278a0ff18d180ef65922"
@@ -27,9 +27,9 @@ RELAY_ACTION_TEMPLATES_V1 = [
         "method_name": "disable",
         "required_arguments": ["relay_id"],
     },
-    {
-        "action_name": ["cancel_timer"],
-        "method_name": "cancel_timer",
-        "required_arguments": ["relay_id"],
-    },
+    # {
+    #     "action_name": ["cancel_timer"],
+    #     "method_name": "cancel_timer",
+    #     "required_arguments": ["relay_id"],
+    # },
 ]

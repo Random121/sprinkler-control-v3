@@ -9,7 +9,7 @@ class RelayControlSocket {
     constructor(socketioAddress) {
         this.socketioAddress = socketioAddress;
         this.socketio = io(this.socketioAddress, {
-            transports: ["websocket", "polling"],
+            transports: ["websocket"],
             autoConnect: false,
             reconnectionAttempts: 3,
         });
@@ -26,7 +26,7 @@ class RelayControlSocket {
         this.socketio.connect();
     }
 
-    sendAction(relayAction, relayId = "") {
+    sendAction(relayAction, relayId = "", relayDuration) {
         if (this.socketio == undefined) {
             throw new Error("SocketIO was not initialized");
         }
@@ -39,6 +39,7 @@ class RelayControlSocket {
             action_name: relayAction,
             arguments: {
                 relay_id: relayId,
+                duration: relayDuration
             },
         });
     }

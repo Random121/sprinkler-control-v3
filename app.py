@@ -4,7 +4,6 @@ from flask import Flask, render_template
 from flask_restful import Api
 from flask_cors import CORS
 from flask_socketio import SocketIO, emit
-from gpiozero.pins.mock import MockFactory
 
 import constants
 from models.Parser import ActionRequestParser
@@ -13,6 +12,14 @@ from models.RelayControl import RelayBoardController
 from resources.api import RelayControlApi
 from resources.socketio import RelaySocketio
 from utils import get_lan_ip_address
+
+try:
+    import eventlet
+
+    # patch eventlet so timer can call socketio functions
+    eventlet.monkey_patch()
+except ImportError:
+    print("Failed to import crucial library eventlet")
 
 flask_app = Flask(
     __name__,
@@ -31,7 +38,7 @@ flask_cors = CORS(
     ],
 )
 
-relay_board = RelayBoard(constants.RELAY_PINOUT, pin_factory=MockFactory())
+relay_board = RelayBoard(constants.RELAY_PINOUT)
 relay_action_parser = ActionRequestParser(constants.RELAY_ACTION_TEMPLATES_V1)
 relay_board_controller = RelayBoardController(relay_board, relay_action_parser)
 
@@ -63,6 +70,7 @@ def clean_up():
     """
     reset all relays before python shutdown
     """
+    flask_socketio.stop()
     relay_board.disable()
 
 
@@ -72,8 +80,8 @@ def main():
         flask_app,
         host=constants.HOST,
         port=constants.PORT,
-        debug=constants.DEBUG,
-        use_reloader=constants.USE_RELOADER,
+        debug=False,
+        use_reloader=False,
     )
 
 
