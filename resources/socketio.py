@@ -1,3 +1,4 @@
+import logging
 import traceback
 from flask_socketio import SocketIO, emit, disconnect
 
@@ -31,7 +32,7 @@ class RelaySocketio:
             try:
                 self.board_controller.dispatch_action(action_request)
             except SprinklerControlBaseException:
-                print(f"[SOCKETIO ERR] {traceback.format_exc()}", flush=True)
+                logging.error(f"[SOCKETIO ERR] {traceback.format_exc()}")
 
         @self.socketio.on("schedule_action", namespace=self.namespace)
         def on_schedule_action(action_request: dict):

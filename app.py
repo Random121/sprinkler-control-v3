@@ -1,4 +1,5 @@
 import atexit
+import logging
 from threading import Timer
 from flask import Flask, render_template
 from flask_restful import Api
@@ -14,12 +15,12 @@ from resources.socketio import RelaySocketio
 from utils import get_lan_ip_address
 
 try:
+    # patch eventlet so threading will work
     import eventlet
-
-    # patch eventlet so timer can call socketio functions
     eventlet.monkey_patch()
 except ImportError:
-    print("Failed to import crucial library eventlet")
+    logging.error("Failed to import and monkey patch eventlet")
+    exit()
 
 flask_app = Flask(
     __name__,
@@ -71,8 +72,7 @@ def clean_up():
     reset all relays before python shutdown
     """
     relay_board.disable()
-    print("[SUCCESSFULLY CLEAN UP]", flush=True)
-
+    logging.info("[SUCCESSFULLY CLEAN UP]")
 
 def main():
     print(f"Relay Control starting on http://{get_lan_ip_address()}:{constants.PORT}")
@@ -86,4 +86,9 @@ def main():
 
 
 if __name__ == "__main__":
+    logging.basicConfig(
+        level=logging.WARNING,
+        format="[%(asctime)s] - %(levelname)s - %(message)s",
+        datefmt="%Y-%m-%d %H:%M:%S",
+    )
     main()

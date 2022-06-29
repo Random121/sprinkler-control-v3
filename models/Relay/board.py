@@ -1,3 +1,4 @@
+import logging
 from gpiozero import Factory
 
 from .device import RelayDevice

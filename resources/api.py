@@ -1,3 +1,4 @@
+import logging
 import traceback
 from typing import Callable
 from flask_restful import abort, Resource, reqparse
@@ -42,7 +43,7 @@ def board_controller_call(function: Callable, *args, **kwargs):
     except InvalidRelayDuration:
         abort(400, message="Duration must be greater than 0")
     except SprinklerControlBaseException:
-        print(f"[UNHANDLED EXCEPTION] {traceback.format_exc()}", flush=True)
+        logging.error(f"[UNHANDLED EXCEPTION] {traceback.format_exc()}")
 
 
 # api for controlling relays

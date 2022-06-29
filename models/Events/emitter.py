@@ -41,9 +41,11 @@ class EventEmitter:
     once = add_once_listener
 
     def emit(self, event: str, *args, **kwargs):
-        # make a clone of the list so it can be iterated while being modified
+        # once listeners modify the listeners list when called
+        # so a copy must be made to iterate it
         # TODO: find a better way of doing this
-        listeners: list = list(self._events.get(event))
-        if listeners:
+        listeners: list = self._events.get(event)
+        if listeners is not None:
+            listeners = list(listeners)
             for listener in listeners:
                 listener(*args, **kwargs)
