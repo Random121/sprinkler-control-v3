@@ -1,12 +1,8 @@
 import logging
 import dateutil.parser
+from pymongo.collection import Collection
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.cron import CronTrigger
-
-# nice job pymongo
-from pymongo import MongoClient
-import eventlet
-pymongo = eventlet.import_patched("pymongo")
 
 from models.Relay.board import RelayBoard
 
@@ -21,8 +17,9 @@ SCHEDULE_FORMAT = {
     "tasks": [
         {
             # 24 hour time (00:00 - 23:59)
+            # seconds is optional
             "start_time": "1:00",
-            # enable duration in minutes
+            # enable duration in seconds
             "duration": 60,
             # id of relay to schedule for
             "relay_id": "GPIO_6",
@@ -47,30 +44,34 @@ TEST_SCHEDULE = {
     "tasks": [
         {"start_time": "1:00", "duration": 30, "relay_id": "GPIO_6"},
         {"start_time": "2:00", "duration": 60, "relay_id": "GPIO_13"},
-        {"start_time": "4:30", "duration": 1, "relay_id": "GPIO_19"},
+        {"start_time": "10:06", "duration": 30, "relay_id": "GPIO_19"},
     ],
 }
 
 
 class Scheduler:
-    def __init__(self, relay_board: RelayBoard) -> None:
+    def __init__(
+        self,
+        relay_board: RelayBoard,
+        db_schedules_collection: Collection,
+    ) -> None:
         self.scheduler = BackgroundScheduler(daemon=True)
         self.board = relay_board
+        self.schedules_collection = db_schedules_collection
 
     def get_active_schedule(self) -> dict:
-        mongo_client: MongoClient = pymongo.MongoClient("mongodb+srv://user:user@cluster0.di3hb.mongodb.net/?retryWrites=true&w=majority")
-        sprinkler_control_db = mongo_client["sprinkler_control"]
-        schedules_collection = sprinkler_control_db["schedules"]
-
-        return schedules_collection.find_one({"active": True}, max_time_ms=1000)
+        return self.schedules_collection.find_one({"active": True}, max_time_ms=1000)
 
     def update_jobs(self):
-        self.scheduler.pause()
-        self.scheduler.remove_all_jobs()
-        self.board.disable()
-
         active_schedule = self.get_active_schedule()
-        schedule_name = active_schedule.get("name", "No name was provided")
+
+        # disable scheduler since there is no active schedules
+        if active_schedule is None:
+            self.scheduler.pause()
+            self.reset()
+            return
+
+        schedule_name = active_schedule.get("name")
         schedule_days = active_schedule.get("days")
         schedule_tasks = active_schedule.get("tasks")
 
@@ -85,7 +86,10 @@ class Scheduler:
 
         logging.info(f"Updating jobs for schedule: {schedule_name}")
 
-        # assume user specified every day of the week if there is 7 active days
+        self.scheduler.pause()
+        self.reset()
+
+        # assume user specified every day of the week if there are 7 active days
         cron_day_of_week = (
             "*"
             if len(schedule_days) == 7
@@ -99,6 +103,7 @@ class Scheduler:
                 day_of_week=cron_day_of_week,
                 hour=start_time.hour,
                 minute=start_time.minute,
+                second=start_time.second,
             )
 
             self.scheduler.add_job(
@@ -109,9 +114,13 @@ class Scheduler:
                 coalesce=True,
             )
 
-            logging.info(f"Added task trigger {task_trigger}")
+            logging.info(f"Added task with trigger {task_trigger}")
 
         self.scheduler.resume()
+
+    def reset(self):
+        self.scheduler.remove_all_jobs()
+        self.board.disable()
 
     def stop(self):
         if self.scheduler.running:

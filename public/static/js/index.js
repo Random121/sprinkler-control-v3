@@ -1,7 +1,7 @@
 import RelayControlSocket from "./RelayControl.js";
 
 const RelayControl = new RelayControlSocket(
-    "192.168.0.27:42488/v1/socketio/sprinklers"
+    "192.168.0.27:42488/v1/socketio/sprinklers/control"
 );
 
 function getToggleAction(toggle) {
