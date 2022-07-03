@@ -53,11 +53,11 @@ relay_board_controller = RelayBoardController(
 
 relay_scheduler = Scheduler(
     relay_board=relay_board,
-    db_schedules_collection=schedules_collection,
+    schedules_collection=schedules_collection,
 )
 relay_scheduler_manager = SchedulerManager(
     scheduler=relay_scheduler,
-    db_schedules_collection=schedules_collection,
+    schedules_collection=schedules_collection,
 )
 
 socketio_resource = RelaySocketio(

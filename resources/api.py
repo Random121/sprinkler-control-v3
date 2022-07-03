@@ -1,8 +1,7 @@
-import random
 import logging
-import sched
 import traceback
 from typing import Callable
+from fastjsonschema import JsonSchemaException
 from flask_restful import abort, Resource, reqparse
 
 import constants
@@ -74,7 +73,13 @@ relay_scheduler_post_parser = reqparse.RequestParser(
 relay_scheduler_post_parser.add_argument(
     "schedule",
     type=dict,
-    help="The new schedule is required",
+    help="Schedule to add is required",
+    required=True,
+)
+relay_scheduler_post_parser.add_argument(
+    "active",
+    type=bool,
+    help="Active state of schedule is required",
     required=True,
 )
 
@@ -83,15 +88,9 @@ relay_scheduler_patch_parser = reqparse.RequestParser(
     bundle_errors=True,
 )
 relay_scheduler_patch_parser.add_argument(
-    "state",
-    type=bool,
-    help="Active state of schedule (true=enable, false=disable) is required",
-    required=True,
-)
-relay_scheduler_patch_parser.add_argument(
     "schedule_id",
     type=str,
-    help="Schedule ID is required",
+    help="Identifier of schedult to set active is required",
     required=True,
 )
 
@@ -102,7 +101,7 @@ relay_scheduler_delete_parser = reqparse.RequestParser(
 relay_scheduler_delete_parser.add_argument(
     "schedule_id",
     type=str,
-    help="Schedule ID is required",
+    help="Identifier of schedult to delete is required",
     required=True,
 )
 
@@ -113,56 +112,36 @@ class SchedulerControlApi(Resource):
 
     # get all schedules
     def get(self):
-        schedules: list = self.manager.get_all_schedules()
-        for schedule in schedules:
-            del schedule["_id"]
-        return schedules
+        return self.manager.get_schedules()
 
     # add new schedule
     def post(self):
         schedule_request: dict = relay_scheduler_post_parser.parse_args()
         schedule: dict = schedule_request["schedule"]
+        active: bool = schedule_request["active"]
 
-        # randomly generate a schedule name (which currently acts as an ID)
-        if "name" not in schedule:
-            schedule["name"] = f"Schedule #{str(random.random())[2:]}"
-
-        if self.manager.is_schedule({ "name": schedule["name"] }):
-            abort(422, message=f"Schedule with name {schedule['name']} already exists")
-
-        if "days" not in schedule:
-            abort(422, message="Schedule did not specify days to run")
-
-        if "tasks" not in schedule:
-            abort(422, message="Schedule did not specify any tasks")
-
-        if "active" in schedule:
-            abort(422, message="Schedule property active can only be specified by the server")
-
-        schedule["active"] = False
-        self.manager.add_schedule(schedule=schedule)
+        # TODO: implement custom error messages with json schema
+        try:
+            self.manager.add_schedule(schedule, active)
+        except JsonSchemaException as err:
+            abort(422, message=str(err))
 
     # delete schedule
     def delete(self):
         delete_request: dict = relay_scheduler_delete_parser.parse_args()
         schedule_id: str = delete_request["schedule_id"]
 
-        if schedule_id is None:
-            abort(422, message="Missing ID of schedule to delete")
+        if not self.manager.is_schedule(schedule_id):
+            abort(422, message=f"No schedule found with identifier {schedule_id}")
 
         self.manager.remove_schedule(schedule_id)
-
 
     # set active schedule
     def patch(self):
         patch_request: dict = relay_scheduler_patch_parser.parse_args()
-        state: bool = patch_request["state"]
         schedule_id: str = patch_request["schedule_id"]
 
-        if not isinstance(state, bool):
-            abort(422, message=f"State must be bool but user sent {type(state)}")
+        if not self.manager.is_schedule(schedule_id):
+            abort(422, message=f"No schedule found with identifier {schedule_id}")
 
-        if not self.manager.is_schedule({ "name": schedule_id }):
-            abort(422, message=f"Schedule with name {schedule_id} does not exist")
-
-        self.manager.set_schedule_active_state(schedule_id, state)
+        self.manager.set_active(schedule_id)
