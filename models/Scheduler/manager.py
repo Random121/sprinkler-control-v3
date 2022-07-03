@@ -1,91 +1,62 @@
+import json
 import logging
 import uuid
-import fastjsonschema
+from jsonschema import exceptions, Validator
+from jsonschema.validators import validator_for
 from pymongo.collection import Collection
 
 from .scheduler import Scheduler
 
-SCHEDULE_SCHEMA = {
-    "title": "Schedule",
-    "description": "A schedule which can be interpreted by the scheduler",
-    "type": "object",
-    "properties": {
-        "name": {
-            "description": "A non-unique display name",
-            "type": "string",
-        },
-        "days": {
-            "description": "Days of week which the schedule will run",
-            "type": "array",
-            "items": {
-                "type": "integer",
-                "minimum": 0,
-                "maximum": 6,
-            },
-            "minItems": 1,
-            "maxItems": 7,
-            "uniqueItems": True,
-        },
-        "tasks": {
-            "description": "Tasks to be run in the schedule",
-            "type": "array",
-            "items": {
-                "description": "A task to enable a relay for a specific time",
-                "type": "object",
-                "properties": {
-                    "start": {
-                        "description": "Time to start the relay",
-                        "type": "string",
-                        # modification of https://www.oreilly.com/library/view/regular-expressions-cookbook/9781449327453/ch04s06.html
-                        "pattern": "^(2[0-3]|[01]?[0-9]):([0-5]?[0-9])(:([0-5]?[0-9]))?$",
-                    },
-                    "duration": {
-                        "description": "Duration to enable relay for",
-                        "type": "integer",
-                        "minimum": 1,
-                    },
-                    "id": {
-                        "description": "Identifier of relay to enable",
-                        "type": "string",
-                    }
-                },
-                "required": ["start", "duration", "id"],
-                "additionalProperties": False,
-            },
-            "minItems": 1,
-        },
-    },
-    "required": ["name", "days", "tasks"],
-    "additionalProperties": False,
-}
 
 class SchedulerManager:
     def __init__(self, scheduler: Scheduler, schedules_collection: Collection) -> None:
         self.scheduler = scheduler
         self.schedules = schedules_collection
-        self.validate_schedule = fastjsonschema.compile(SCHEDULE_SCHEMA)
 
-    # TODO: do schedule validation here
-    # client can't specify the "active" and "_id" fields
-    def add_schedule(self, schedule: dict, set_active: bool):
+        with open("schemas/schedule.schema.json") as schema:
+            SCHEDULE_SCHEMA = json.load(schema)
+
+        self.validate_schedule = self._build_schedule_validator(SCHEDULE_SCHEMA)
+
+    # slightly more optimized jsonschema validator which doesn't recreate
+    # the validator class every function call
+    def _build_schedule_validator(self, schema: dict, *args, **kwargs):
+        _validator_class: Validator = validator_for(schema=schema)
+        _validator_class.check_schema(schema=schema)
+        _validator: Validator = _validator_class(schema, *args, **kwargs)
+
+        def validator(instance):
+            error = exceptions.best_match(_validator.iter_errors(instance))
+            if error is not None:
+                raise error
+
+        return validator
+
+    def _get_active_state(self, schedule: dict):
+        return (schedule is not None) and schedule.get("active", False)
+
+    def add_schedule(self, schedule: dict):
         # validate schedule using json schema
         self.validate_schedule(schedule)
 
-        random_id = str(uuid.uuid4())
-        schedule["_id"] = random_id
-
+        schedule["_id"] = str(uuid.uuid4())
         self.schedules.insert_one(schedule)
 
-        if set_active:
-            self.set_active(random_id)
+    def update_schedule(self, id: str, new_schedule: dict):
+        # validate schedule using json schema
+        self.validate_schedule(new_schedule)
+
+        before: dict = self.schedules.find_one_and_replace({"_id": id}, new_schedule)
+
+        # only need to update if the schedule was active
+        if self._get_active_state(before):
+            self.scheduler.update()
 
     def remove_schedule(self, id: str):
         deleted: dict = self.schedules.find_one_and_delete({"_id": id})
 
-        # only update if the schedule deleted was active
-        should_update = (deleted is not None) and deleted.get("active", False)
-
-        if should_update:
+        # only need to update if the schedule was active
+        if self._get_active_state(deleted):
             self.scheduler.update()
 
     # @param filter mongodb filter which is optional
@@ -111,7 +82,7 @@ class SchedulerManager:
     # check if a schedule is active
     def is_active(self, id: str):
         schedule: dict = self.schedules.find_one({"_id": id})
-        return (schedule is not None) and schedule.get("active", False)
+        return self._get_active_state(schedule)
 
     def get_active(self):
         return self.schedules.find_one({"active": True})

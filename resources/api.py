@@ -1,7 +1,8 @@
+import re
 import logging
 import traceback
 from typing import Callable
-from fastjsonschema import JsonSchemaException
+from jsonschema import ValidationError
 from flask_restful import abort, Resource, reqparse
 
 import constants
@@ -76,12 +77,6 @@ relay_scheduler_post_parser.add_argument(
     help="Schedule to add is required",
     required=True,
 )
-relay_scheduler_post_parser.add_argument(
-    "active",
-    type=bool,
-    help="Active state of schedule is required",
-    required=True,
-)
 
 relay_scheduler_patch_parser = reqparse.RequestParser(
     trim=True,
@@ -105,6 +100,64 @@ relay_scheduler_delete_parser.add_argument(
     required=True,
 )
 
+relay_scheduler_put_parser = reqparse.RequestParser(
+    trim=True,
+    bundle_errors=True,
+)
+relay_scheduler_delete_parser.add_argument(
+    "schedule_id",
+    type=str,
+    help="Identifier of schedult to delete is required",
+    required=True,
+)
+relay_scheduler_delete_parser.add_argument(
+    "schedule",
+    type=str,
+    help="Replacement schedule is required",
+    required=True,
+)
+
+# errors can be found in https://github.com/python-jsonschema/jsonschema/blob/main/jsonschema/_validators.py
+missing_property_re = re.compile("^(?P<value>'.+?') is a required property$")
+additional_property_re = re.compile("^Additional properties are not allowed \((?P<value>.+?) (was|were) unexpected\)$")
+
+extra_value_parsers = {
+    "required": [missing_property_re, "missing_property"],
+    "additionalProperties": [additional_property_re, "additional_properties"],
+}
+
+def parse_extra_values(validator, error_message: str):
+    extra_values = {}
+
+    parser = extra_value_parsers.get(validator)
+    if parser is None:
+        return extra_values
+
+    name: str = parser[1]
+    value: str = parser[0].match(error_message).group("value")
+
+    logging.info(value)
+    logging.info(error_message)
+
+    return {name: value}
+
+def get_schema_error_message(error: ValidationError):
+    schema: dict = error.schema
+    validator = error.validator
+    default_error_message = error.message
+
+    # use optional chaining to get custom error message
+    # else use default provided by jsonschema
+    error_message: str = schema.get("errorMessage", {}).get(validator, default_error_message)
+
+    return error_message.format(
+        default_message=default_error_message,
+        instance=error.instance,
+        validator=validator,
+        validator_value=error.validator_value,
+        **parse_extra_values(validator, default_error_message)
+    )
+
 # api for controlling scheduler
 class SchedulerControlApi(Resource):
     def __init__(self, scheduler_manager: SchedulerManager) -> None:
@@ -118,13 +171,12 @@ class SchedulerControlApi(Resource):
     def post(self):
         schedule_request: dict = relay_scheduler_post_parser.parse_args()
         schedule: dict = schedule_request["schedule"]
-        active: bool = schedule_request["active"]
 
         # TODO: implement custom error messages with json schema
         try:
-            self.manager.add_schedule(schedule, active)
-        except JsonSchemaException as err:
-            abort(422, message=str(err))
+            self.manager.add_schedule(schedule)
+        except ValidationError as err:
+            abort(422, message=get_schema_error_message(err))
 
     # delete schedule
     def delete(self):
@@ -145,3 +197,15 @@ class SchedulerControlApi(Resource):
             abort(422, message=f"No schedule found with identifier {schedule_id}")
 
         self.manager.set_active(schedule_id)
+
+    # replace a schedule
+    def put(self):
+        put_request: dict = relay_scheduler_put_parser.parse_args()
+        schedule_id: str = put_request["schedule_id"]
+        schedule: dict = put_request["schedule"]
+
+        if not self.manager.is_schedule(schedule_id):
+            abort(422, message=f"No schedule found with identifier {schedule_id}")
+
+        self.manager.update_schedule(schedule_id, schedule)
+
