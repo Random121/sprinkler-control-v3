@@ -1,0 +1,47 @@
+{
+    "title": "Action",
+    "description": "Action to be performed on the relays",
+
+    "type": "object",
+    "properties": {
+        "action": {
+            "description": "Type of action to be performed by relay",
+            "type": "string",
+            "errorMessage": {
+                "type": "Schedule name must be a string"
+            }
+        },
+        "arguments": {
+            "description": "Arguments to be passed to the relay",
+            "type": "object",
+            "properties": {
+                "id": {
+                    "description": "Relay identifiers argument",
+                    "type": "string",
+                    "errorMessage": {
+                        "type": "Relay identifier must be a string"
+                    }
+                },
+                "duration": {
+                    "description": "Relay enable duration argument",
+                    "type": "number",
+                    "exclusiveMinimum": 0,
+                    "errorMessage": {
+                        "type": "Duration must be an integer",
+                        "exclusiveMinimum": "Minimum duration is 0 seconds"
+                    }
+                }
+            },
+            "errorMessage": {
+                "type": "Arguments must be a dictionary"
+            }
+        }
+    },
+    "required": ["action", "arguments"],
+    "additionalProperties": false,
+    "errorMessage": {
+        "type": "An action request must be a dictionary",
+        "required": "Missing {missing_property} property in action request",
+        "additionalProperties": "Invalid properties ({additional_properties}) is specified"
+    }
+}
