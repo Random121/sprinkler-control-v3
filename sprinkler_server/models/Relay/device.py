@@ -1,3 +1,4 @@
+from types import NoneType
 from typing import Callable
 from gpiozero import OutputDevice, Factory
 
@@ -57,12 +58,17 @@ class RelayDevice(OutputDevice):
             "is_active": self.is_active,
             "time_remaining": self.time_remaining,
             "time_elapsed": self.time_elapsed,
+            "duration": self.duration,
         }
 
     @property
-    def time_remaining(self) -> float:
+    def time_remaining(self) -> float | NoneType:
         return None if self._timer is None else self._timer.remaining
 
     @property
-    def time_elapsed(self) -> float:
+    def time_elapsed(self) -> float | NoneType:
         return None if self._timer is None else self._timer.elapsed
+
+    @property
+    def duration(self) -> float | NoneType:
+        return None if self._timer is None else self._timer.interval

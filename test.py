@@ -1,9 +1,12 @@
+import logging
+
 from sprinkler_server import create_app
 from flask_config import DebugConfig
 
 
 def main():
     config = DebugConfig()
+    logging.basicConfig(**config.LOGGING_CONFIG)
     flask_app, flask_socketio = create_app(config)
     flask_socketio.run(
         flask_app,

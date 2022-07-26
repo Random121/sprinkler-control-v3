@@ -1,18 +1,12 @@
-import json
-
 from sprinkler_server.exceptions import MissingArgument
 from sprinkler_server.utils import build_jsonschema_validator
 
 
 class ActionNormalizer:
-    def __init__(self, templates: list[dict]) -> None:
+    def __init__(self, templates: list[dict], action_schema: dict) -> None:
         self.method_lookup = {}
         self.arguments_lookup = {}
-
-        with open("sprinkler_server/schemas/action.schema.json") as schema:
-            ACTION_SCHEMA = json.load(schema)
-
-        self.validate_action = build_jsonschema_validator(ACTION_SCHEMA)
+        self.validate_action = build_jsonschema_validator(action_schema)
 
         self._build_lookup_tables(templates)
 

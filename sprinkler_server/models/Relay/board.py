@@ -1,3 +1,4 @@
+import logging
 from gpiozero import Factory
 from typing import Any
 
@@ -20,7 +21,8 @@ class RelayBoard:
                 active_high,
                 initial_value,
                 pin_factory,
-                lambda: self.emitter.emit("update", [id]),
+                # loop variable capture: https://stackoverflow.com/q/1107210
+                lambda id=id: self.emitter.emit("update", [id]),
             )
             for id, pin in pin_mapping.items()
         }
@@ -91,7 +93,7 @@ class RelayBoard:
             return
 
         # ensure all other relays are off
-        self._disable()
+        self.disable()
         self._enable(ids, duration)
         self.emitter.emit("update", ids)
 

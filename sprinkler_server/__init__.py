@@ -1,9 +1,9 @@
 import atexit
+import json
 import logging
 import eventlet
 from pymongo.mongo_client import MongoClient
 from gpiozero.pins.mock import MockFactory
-
 # from gpiozero.pins.pigpio import PiGPIOFactory
 
 # patch eventlet so threading works
@@ -38,8 +38,15 @@ sprinkler_control_db = mongo_client["test_sprinkler"]
 schedules_collection = sprinkler_control_db["test_schedules"]
 
 
+with open("sprinkler_server/schemas/action.schema.json") as schema:
+    ACTION_SCHEMA = json.load(schema)
+
+with open("sprinkler_server/schemas/schedule.schema.json") as schema:
+    SCHEDULE_SCHEMA = json.load(schema)
+
 pin_mapping, info_mapping = parse_relay_config(config.RELAY_CONFIG)
-action_normalizer = ActionNormalizer(config.ACTION_TEMPLATE_V2)
+
+action_normalizer = ActionNormalizer(config.ACTION_TEMPLATE_V2, ACTION_SCHEMA)
 relay_board = RelayBoard(pin_mapping, pin_factory=MockFactory())
 relay_board_controller = RelayBoardController(
     relay_board,
@@ -49,17 +56,17 @@ relay_board_controller = RelayBoardController(
 
 
 scheduler = Scheduler(relay_board, schedules_collection)
-schedule_manager = ScheduleManager(scheduler, schedules_collection)
+schedule_manager = ScheduleManager(
+    scheduler,
+    schedules_collection,
+    SCHEDULE_SCHEMA,
+)
 
 
 def create_app(flask_config: object):
     # create and configure flask
     flask_app = Flask(__name__)
     flask_app.config.from_object(flask_config)
-
-    # configure logging
-    # TODO: use builtin dictConfig instead
-    logging.basicConfig(**flask_config.LOGGING_CONFIG)
 
     # initialize flask extensions
     flask_cors.init_app(flask_app)

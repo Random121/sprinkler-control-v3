@@ -3,7 +3,6 @@ import logging
 
 class DebugConfig(object):
     DEBUG = True
-    TESTING = True
     USE_RELOADER = True
 
     HOST = "127.0.0.1"
@@ -15,12 +14,12 @@ class DebugConfig(object):
         "level": logging.DEBUG,
         "format": "[%(asctime)s] - %(levelname)s - %(message)s",
         "datefmt": "%Y-%m-%d %H:%M:%S",
+        "force": True,
     }
 
 
 class ProductionConfig(object):
     DEBUG = False
-    TESTING = False
     USE_RELOADER = False
 
     HOST = "0.0.0.0"
@@ -32,4 +31,5 @@ class ProductionConfig(object):
         "level": logging.INFO,
         "format": "[%(asctime)s] - %(levelname)s - %(message)s",
         "datefmt": "%Y-%m-%d %H:%M:%S",
+        "force": True,
     }

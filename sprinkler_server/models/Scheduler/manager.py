@@ -1,4 +1,3 @@
-import json
 import logging
 import uuid
 from jsonschema import exceptions, Validator
@@ -10,14 +9,10 @@ from sprinkler_server.utils import build_jsonschema_validator
 
 
 class ScheduleManager:
-    def __init__(self, scheduler: Scheduler, schedules_collection: Collection) -> None:
+    def __init__(self, scheduler: Scheduler, schedules_collection: Collection, schedule_schema: dict) -> None:
         self.scheduler = scheduler
         self.schedules = schedules_collection
-
-        with open("sprinkler_server/schemas/schedule.schema.json") as schema:
-            SCHEDULE_SCHEMA = json.load(schema)
-
-        self.validate_schedule = build_jsonschema_validator(SCHEDULE_SCHEMA)
+        self.validate_schedule = build_jsonschema_validator(schedule_schema)
 
     def _is_active(self, schedule: dict):
         return (schedule is not None) and schedule.get("active", False)
