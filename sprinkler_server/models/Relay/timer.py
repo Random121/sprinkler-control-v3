@@ -8,8 +8,8 @@ class BetterTimer(Timer):
         self,
         interval: float,
         function: Callable[..., Any],
-        args: Iterable[Any] | None = None,
-        kwargs: Mapping[str, Any] | None = None,
+        args: Iterable[Any] = None,
+        kwargs: Mapping[str, Any] = None,
     ) -> None:
         super().__init__(interval, function, args, kwargs)
         self.started_at = None
