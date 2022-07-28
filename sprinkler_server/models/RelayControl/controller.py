@@ -27,7 +27,7 @@ class RelayBoardController:
         method(*(action.get("arguments")))
 
     # additional information added to state (name, pin, etc)
-    def get_info(self, ids: (str | list | None) = None):
+    def get_info(self, ids: Union[str, list, None] = None):
         states = self.board.get_state(ids)
 
         for state in states:

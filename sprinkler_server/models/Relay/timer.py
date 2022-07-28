@@ -1,6 +1,6 @@
 from threading import Timer
 from time import perf_counter
-from typing import Callable, Any, Iterable, Mapping
+from typing import Callable, Any, Iterable, Mapping, Union
 
 
 class BetterTimer(Timer):
@@ -8,8 +8,8 @@ class BetterTimer(Timer):
         self,
         interval: float,
         function: Callable[..., Any],
-        args: Iterable[Any] = None,
-        kwargs: Mapping[str, Any] = None,
+        args: Union[Iterable[Any], None] = None,
+        kwargs: Union[Mapping[str, Any], None] = None,
     ) -> None:
         super().__init__(interval, function, args, kwargs)
         self.started_at = None

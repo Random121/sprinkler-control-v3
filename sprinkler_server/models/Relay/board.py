@@ -1,5 +1,5 @@
 from gpiozero import Factory
-from typing import Any
+from typing import Any, Union
 
 from .device import RelayDevice
 from sprinkler_server.models.Events import EventEmitter
@@ -77,7 +77,7 @@ class RelayBoard:
 
     # extra limitations are added for raspberry pi
     # since it can only handle one relay on at once
-    def enable(self, ids: (str | list | None) = None, duration: float = None):
+    def enable(self, ids: Union[str, list, None] = None, duration: float = None):
         # normalize ids
         if isinstance(ids, str):
             ids = [ids]
@@ -96,7 +96,7 @@ class RelayBoard:
         self._enable(ids, duration)
         self.emitter.emit("update", ids)
 
-    def disable(self, ids: (str | list | None) = None):
+    def disable(self, ids: Union[str, list, None] = None):
         # normalize ids
         if isinstance(ids, str):
             ids = [ids]
@@ -104,7 +104,7 @@ class RelayBoard:
         self._disable(ids)
         self.emitter.emit("update", ids)
 
-    def cancel_timer(self, ids: (str | list | None) = None):
+    def cancel_timer(self, ids: Union[str, list, None] = None):
         # normalize ids
         if isinstance(ids, str):
             ids = [ids]
@@ -112,7 +112,7 @@ class RelayBoard:
         self._cancel_timer(ids)
         self.emitter.emit("update", ids)
 
-    def get_state(self, ids: (str | list | None) = None) -> list[dict[str, Any]]:
+    def get_state(self, ids: Union[str, list, None] = None) -> list[dict[str, Any]]:
         # normalize ids
         if isinstance(ids, str):
             ids = [ids]

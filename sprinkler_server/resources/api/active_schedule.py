@@ -11,7 +11,7 @@ class ActiveScheduleAPI(Resource):
         if not self.manager.is_schedule(schedule_id):
             abort(422, message=f"No schedule found with identifier {schedule_id}")
 
-    def get(self, schedule_id: (str | None) = None):
+    def get(self, schedule_id = None):
         return self.manager.get_active()
 
     def put(self, schedule_id: str):

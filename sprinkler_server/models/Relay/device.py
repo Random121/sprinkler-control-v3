@@ -1,3 +1,4 @@
+from ctypes import Union
 from typing import Callable
 from gpiozero import OutputDevice, Factory
 
@@ -61,13 +62,13 @@ class RelayDevice(OutputDevice):
         }
 
     @property
-    def time_remaining(self) -> float | None:
+    def time_remaining(self) -> Union[float, None]:
         return None if self._timer is None else self._timer.remaining
 
     @property
-    def time_elapsed(self) -> float | None:
+    def time_elapsed(self) -> Union[float, None]:
         return None if self._timer is None else self._timer.elapsed
 
     @property
-    def duration(self) -> float | None:
+    def duration(self) -> Union[float, None]:
         return None if self._timer is None else self._timer.interval

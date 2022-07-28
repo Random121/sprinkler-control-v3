@@ -1,3 +1,4 @@
+from typing import Union
 from flask_socketio import Namespace
 
 import sprinkler_config as config
@@ -13,14 +14,14 @@ class UpdateNamespace(Namespace):
         super().__init__(namespace)
         controller.board.emitter.on("update", self._send_update)
 
-    def _send_update(self, ids: (list | None) = None):
+    def _send_update(self, ids: Union[list, None] = None):
         infos = controller.get_info(ids)
         self.emit("update", infos)
 
     def on_connect(self):
         self._send_update()
 
-    def on_request_update(self, ids: (list | None) = None):
+    def on_request_update(self, ids: Union[list, None] = None):
         self._send_update(ids)
 
 
