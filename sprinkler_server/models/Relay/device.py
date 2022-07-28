@@ -1,5 +1,4 @@
-from ctypes import Union
-from typing import Callable
+from typing import Callable, Union
 from gpiozero import OutputDevice, Factory
 
 from .timer import BetterTimer

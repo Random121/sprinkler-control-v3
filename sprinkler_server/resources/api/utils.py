@@ -2,6 +2,7 @@ import traceback
 import logging
 from re import Pattern, compile as re_compile
 from types import MethodType
+from typing import Union
 from jsonschema import ValidationError
 from flask_restful import abort
 
@@ -15,7 +16,7 @@ additional_property_re = re_compile(
     "^Additional properties are not allowed \((?P<value>.+?) (was|were) unexpected\)$"
 )
 
-extra_value_parser_config: dict[str, dict[str, (str | Pattern)]] = {
+extra_value_parser_config: dict[str, dict[str, Union[str, Pattern]]] = {
     # validator name
     "required": {
         # regexp for the value

@@ -1,4 +1,5 @@
 from types import MethodType
+from typing import Union
 
 from sprinkler_server.models.RequestNormalizer import ActionNormalizer
 from sprinkler_server.models.Relay import RelayBoard
