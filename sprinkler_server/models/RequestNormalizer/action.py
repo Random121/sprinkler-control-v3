@@ -62,7 +62,7 @@ class ActionNormalizer:
             raise TypeError("Missing arguments")
 
         if not isinstance(arguments, dict):
-            raise TypeError(f"Arguments must be a dictionary")
+            raise TypeError("Arguments must be a dictionary")
 
         template_arguments: list[dict] = self.arguments_lookup.get(method)
         parsed_arguments = []

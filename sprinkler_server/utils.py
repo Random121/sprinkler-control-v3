@@ -1,4 +1,3 @@
-from datetime import datetime
 from socket import socket, AF_INET, SOCK_DGRAM
 from jsonschema import exceptions, Validator
 from jsonschema.validators import validator_for

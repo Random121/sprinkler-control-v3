@@ -1,7 +1,5 @@
 import logging
 import uuid
-from jsonschema import exceptions, Validator
-from jsonschema.validators import validator_for
 from pymongo.collection import Collection
 
 from .scheduler import Scheduler

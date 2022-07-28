@@ -1,4 +1,3 @@
-import logging
 from gpiozero import Factory
 from typing import Any
 

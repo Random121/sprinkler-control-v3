@@ -1,4 +1,4 @@
-from flask_socketio import Namespace, emit
+from flask_socketio import Namespace
 
 import sprinkler_config as config
 from sprinkler_server import flask_socketio, relay_board_controller
