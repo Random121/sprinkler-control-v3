@@ -1,8 +1,8 @@
 from typing import Union
-from flask_socketio import Namespace
+from flask_socketio import Namespace, SocketIO
 
 import sprinkler_config as config
-from sprinkler_server import flask_socketio, relay_board_controller
+from sprinkler_server import relay_board_controller
 
 # shorthand variables
 namespace = config.SOCKETIO_UPDATE_PATH
@@ -25,5 +25,5 @@ class UpdateNamespace(Namespace):
         self._send_update(ids)
 
 
-def socketio_register():
-    flask_socketio.on_namespace(UpdateNamespace(namespace))
+def socketio_register(socketio: SocketIO):
+    socketio.on_namespace(UpdateNamespace(namespace))

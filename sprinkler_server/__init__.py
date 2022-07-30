@@ -4,7 +4,7 @@ import logging
 import eventlet
 from pymongo.mongo_client import MongoClient
 from gpiozero.pins.mock import MockFactory
-# from gpiozero.pins.pigpio import PiGPIOFactory
+from gpiozero.pins.pigpio import PiGPIOFactory
 
 # patch eventlet so threading works
 eventlet.monkey_patch()
@@ -47,7 +47,7 @@ with open("sprinkler_server/schemas/schedule.schema.json") as schema:
 pin_mapping, info_mapping = parse_relay_config(config.RELAY_CONFIG)
 
 action_normalizer = ActionNormalizer(config.ACTION_TEMPLATE_V2, ACTION_SCHEMA)
-relay_board = RelayBoard(pin_mapping, pin_factory=MockFactory())
+relay_board = RelayBoard(pin_mapping, pin_factory=PiGPIOFactory())
 relay_board_controller = RelayBoardController(
     relay_board,
     action_normalizer,
@@ -77,7 +77,7 @@ def create_app(flask_config: object):
 
     flask_app.register_blueprint(api_blueprint)
     flask_app.register_blueprint(panel_blueprint)
-    socketio_register()
+    socketio_register(flask_socketio)
 
     # add additional routes
     @flask_app.route("/")

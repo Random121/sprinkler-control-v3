@@ -3,7 +3,7 @@ import logging
 from sprinkler_server import create_app
 from flask_config import ProductionConfig
 
-
+# NOTE: remember to change factory of relay board to a production factory
 def main():
     config = ProductionConfig()
     logging.basicConfig(**config.LOGGING_CONFIG)
