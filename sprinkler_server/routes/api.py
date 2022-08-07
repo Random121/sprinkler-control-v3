@@ -1,6 +1,5 @@
 from flask import Blueprint
 from flask_restful import Api
-from flask_cors import CORS
 
 import sprinkler_config as config
 from sprinkler_server import relay_board_controller, schedule_manager
@@ -21,7 +20,6 @@ api_blueprint = Blueprint(
     url_prefix=config.API_BASE_PATH,
 )
 
-CORS(api_blueprint)
 api = Api(api_blueprint)
 
 api.add_resource(
