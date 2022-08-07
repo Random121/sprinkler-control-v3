@@ -7,7 +7,12 @@ from sprinkler_server.utils import build_jsonschema_validator
 
 
 class ScheduleManager:
-    def __init__(self, scheduler: Scheduler, schedules_collection: Collection, schedule_schema: dict) -> None:
+    def __init__(
+        self,
+        scheduler: Scheduler,
+        schedules_collection: Collection,
+        schedule_schema: dict,
+    ) -> None:
         self.scheduler = scheduler
         self.schedules = schedules_collection
         self.validate_schedule = build_jsonschema_validator(schedule_schema)
@@ -23,14 +28,20 @@ class ScheduleManager:
         # validate schedule using json schema
         self.validate_schedule(schedule)
 
+    def _disable_schedules(self, exclude_id: str):
+        disable_filter = {"_id": {"$ne": exclude_id}, "active": True}
+        self.schedules.update_one(disable_filter, {"$set": {"active": False}})
+
     def add_schedule(self, schedule: dict):
         self._preprocessor(schedule)
 
-        schedule["_id"] = str(uuid.uuid4())
+        id = str(uuid.uuid4())
+        schedule["_id"] = id
 
         self.schedules.insert_one(schedule)
 
         if self._is_active(schedule):
+            self._disable_schedules(id)
             self.scheduler.update()
 
     def update_schedule(self, id: str, new_schedule: dict):
@@ -40,6 +51,7 @@ class ScheduleManager:
 
         # only need to update if the schedule was active
         if self._is_active(new_schedule):
+            self._disable_schedules(id)
             self.scheduler.update()
 
     def remove_schedule(self, id: str):
@@ -72,8 +84,7 @@ class ScheduleManager:
 
             # disable all other active schedules (max one active schedule)
             if active_state:
-                disable_filter = {"_id": {"$ne": id}, "active": True}
-                self.schedules.update_one(disable_filter, {"$set": {"active": False}})
+                self._disable_schedules(id)
 
             self.scheduler.update()
 
