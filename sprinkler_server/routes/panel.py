@@ -26,4 +26,7 @@ def control_page():
 
 @panel_blueprint.route("/schedule")
 def schedule_page():
-    return "Work In Progress", 200
+    return render_template(
+        "index.html",
+        server_host=get_lan_ip_address(),
+    )

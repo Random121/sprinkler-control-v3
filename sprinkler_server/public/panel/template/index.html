@@ -8,29 +8,20 @@
         <meta id="info" data-host="{{ server_host }}" />
 
         <title>Sprinkler Control</title>
-
-        <script
-            type="module"
-            crossorigin
-            src="{{ url_for('control_panel.static', filename='index.2d4d2bf8.js')}}"
-        ></script>
-        <link
-            rel="stylesheet"
-            href="{{ url_for('control_panel.static', filename='index.22b8134a.css') }}"
-        />
-        <link
-            rel="favicon"
-            href="{{ url_for('control_panel.static', filename='favicon.ico') }}"
-        />
+        <script type="module" crossorigin src="{{ url_for('control_panel.static', filename='index.6de23a07.js') }}"></script>
+        <link rel="stylesheet" href="{{ url_for('control_panel.static', filename='index.da582c0a.css') }}">
+        <link rel="shortcut icon" href="{{ url_for('control_panel.static', filename='favicon.ico') }}">
     </head>
 
     <body>
         <div id="app"></div>
+
     </body>
 
     <style>
         body {
             background-color: #2f3136;
+            margin: 0;
         }
     </style>
 </html>

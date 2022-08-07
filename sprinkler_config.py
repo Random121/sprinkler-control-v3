@@ -30,7 +30,7 @@ RELAY_CONFIG = [
     },
     {
         "id": "GPIO_13",
-        "name": "Front yard (east",
+        "name": "Front yard (east)",
         "pin": 13,
     },
     {
