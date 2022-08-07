@@ -25,22 +25,22 @@ MONGODB_URL = (
 RELAY_CONFIG = [
     {
         "id": "GPIO_6",
-        "name": "GPIO 6",
+        "name": "Front yard (west)",
         "pin": 6,
     },
     {
         "id": "GPIO_13",
-        "name": "GPIO 13",
+        "name": "Front yard (east",
         "pin": 13,
     },
     {
         "id": "GPIO_19",
-        "name": "GPIO 19",
+        "name": "Not connected",
         "pin": 19,
     },
     {
         "id": "GPIO_26",
-        "name": "GPIO 26",
+        "name": "Not connected",
         "pin": 26,
     },
 ]
