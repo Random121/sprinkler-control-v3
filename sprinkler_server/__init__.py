@@ -13,7 +13,6 @@ eventlet.monkey_patch()
 pymongo = eventlet.import_patched("pymongo")
 
 from flask import Flask, redirect, url_for
-from flask_cors import CORS
 from flask_socketio import SocketIO
 
 import sprinkler_config as config
@@ -25,13 +24,6 @@ from .models.Scheduler import Scheduler, ScheduleManager
 
 
 flask_socketio = SocketIO(cors_allowed_origins="*")
-flask_cors = CORS(
-    resources=[
-        f"{config.API_BASE_PATH}/*",
-        f"{config.SOCKETIO_BASE_PATH}/*",
-    ],
-)
-
 
 mongo_client: MongoClient = pymongo.MongoClient(config.MONGODB_URL)
 sprinkler_control_db = mongo_client["test_sprinkler"]
@@ -69,7 +61,6 @@ def create_app(flask_config: object):
     flask_app.config.from_object(flask_config)
 
     # initialize flask extensions
-    flask_cors.init_app(flask_app)
     flask_socketio.init_app(flask_app)
 
     # register blueprints and other routes
