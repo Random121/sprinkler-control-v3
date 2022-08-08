@@ -59,10 +59,10 @@
                     },
                     "duration": {
                         "description": "Duration of time in seconds to enable the relay for",
-                        "type": "integer",
+                        "type": "number",
                         "minimum": 1,
                         "errorMessage": {
-                            "type": "Duration must be an integer",
+                            "type": "Duration must be an number",
                             "minimum": "Duration must be at least 1 second"
                         }
                     },
