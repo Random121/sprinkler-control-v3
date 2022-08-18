@@ -35,12 +35,12 @@ RELAY_CONFIG = [
     },
     {
         "id": "GPIO_19",
-        "name": "Not connected",
+        "name": "Backyard",
         "pin": 19,
     },
     {
         "id": "GPIO_26",
-        "name": "Not connected",
+        "name": "Side yard (west)",
         "pin": 26,
     },
 ]
