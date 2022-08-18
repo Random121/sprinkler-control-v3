@@ -27,8 +27,8 @@
                 "maximum": 6,
                 "errorMessage": {
                     "type": "Day to run must be an integer",
-                    "minimum": "Valid value for days: 0=sunday, 1=monday ... 6=saturday",
-                    "maximum": "Valid value for days: 0=sunday, 1=monday ... 6=saturday"
+                    "minimum": "Valid value for days: 0=monday, 1=tuesday ... 6=sunday",
+                    "maximum": "Valid value for days: 0=monday, 1=tuesday ... 6=sunday"
                 }
             },
             "minItems": 1,

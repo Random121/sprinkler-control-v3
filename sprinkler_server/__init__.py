@@ -28,8 +28,8 @@ flask_socketio = SocketIO(cors_allowed_origins="*")
 flask_cors = CORS()
 
 mongo_client: MongoClient = pymongo.MongoClient(config.MONGODB_URL)
-sprinkler_control_db = mongo_client["test_sprinkler"]
-schedules_collection = sprinkler_control_db["test_schedules"]
+sprinkler_control_db = mongo_client["sprinkler_control"]
+schedules_collection = sprinkler_control_db["schedules"]
 
 
 with open("sprinkler_server/schemas/action.schema.json") as schema:
