@@ -9,7 +9,7 @@
 <br>
 
 ## Documentation
-The documentation can be found in the `docs/` folder
+The documentation can be found in the `docs/` folder<br>
 Frontend code can be found [here](https://github.com/Random121/sprinkler-control-v3-frontend)
 
 <br>
