@@ -46,7 +46,7 @@ with open("sprinkler_server/schemas/schedule.schema.json") as schema:
 pin_mapping, info_mapping = parse_relay_config(config.RELAY_CONFIG)
 
 action_normalizer = ActionNormalizer(config.ACTION_TEMPLATE_V2, ACTION_SCHEMA)
-relay_board = RelayBoard(pin_mapping, pin_factory=MockFactory())
+relay_board = RelayBoard(pin_mapping, pin_factory=PiGPIOFactory())
 relay_board_controller = RelayBoardController(
     relay_board,
     action_normalizer,
