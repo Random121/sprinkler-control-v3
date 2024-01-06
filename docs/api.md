@@ -1,10 +1,9 @@
 # Sprinkler RESTful API
-> Base URL:<br>
-> `/sprinkler/v1/api`
+**Base URL:** `/sprinkler/v1/api`
 
-## Relays Endpoints
+## Structures
 
-> Action Structure:<br>
+### Action
 ```python
 {
     "action": "MY_ACTION",
@@ -12,22 +11,7 @@
 }
 ```
 
-> `[GET]` /relays<br>
-> Get status of all relays
-
-> `[POST]` /relays<br>
-> Perform an action on all relays
-
-> `[GET]` /relays/{relay_id}<br>
-> Get status of relay specified by `relay_id`
-
-> `[POST]` /relays/{relay_id}<br>
-> Perform an action on relay specified by `relay_id`<br>
-> The `enable` action requires a `duration` argument (in seconds)
-
-## Scheduler Endpoints
-
-> Schedule Structure:
+### Schedule
 ```python
 {
     # UUID for each schedule which is used in the API
@@ -59,42 +43,43 @@
 }
 ```
 
-<br>
+## Relays Endpoints
+
+> `[GET]` /relays<br>
+> Get status of all relays
+
+> `[POST]` /relays<br>
+> Perform an action on all relays
+
+> `[GET]` /relays/{relay_id}<br>
+> Get status of relay specified by `relay_id`
+
+> `[POST]` /relays/{relay_id}<br>
+> Perform an action on relay specified by `relay_id`<br>
+> The `enable` action requires a `duration` argument (in seconds)
+
+## Scheduler Endpoints
 
 > `[GET]` /schedules<br>
 > Get all schedules
 
-<br>
-
 > `[POST]` /schedules<br>
 > Add a new schedule which follows the `Schedule Structure`
-
-<br>
 
 > `[GET]` /schedules/{schedule_id}<br>
 > Get information about schedule specified by `schedule_id`
 
-<br>
-
 > `[DELETE]` /schedules/{schedule_id}<br>
 > Deletes the schedule specified by `schedule_id`
-
-<br>
 
 > `[PUT]` /schedules/{schedule_id}<br>
 > Replaces the specified schedule with a new schedule which follows the `Schedule Structure`
 
-<br>
-
 > `[GET]` /schedules/active<br>
 > Gets the currently running schedule
 
-<br>
-
 > `[PUT]` /schedules/active/{schedule_id}<br>
 > Sets the specified schedule as active (disabled previously active schedule)
-
-<br>
 
 > `[DELETE]` /schedules/active/{schedule_id}<br>
 > Disables the specified schedule if it was active

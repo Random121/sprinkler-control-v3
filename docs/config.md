@@ -2,7 +2,6 @@
 
 ## Relay Configuration
 
-> Basic Relay Configuration
 ```python
 [
     {
@@ -24,7 +23,6 @@
 ## Action Template
 This is a schema used to map an action to a corresponding method on the relay board. It also parses arguments and passes it to the method. Thus, the arguments specified in the action template must be ordered to be in the position they appear in the relay board method.
 
-> Basic Action Template
 ```python
 [
     {

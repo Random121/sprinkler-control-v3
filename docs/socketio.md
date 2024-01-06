@@ -1,12 +1,15 @@
 # Sprinkler SocketIO
-> Base URL:<br>
-> `/sprinkler/v1/socketio`
 
-<br>
+Backend sends realtime updates about sprinklers to the frontend through the websocket.
 
-## Relay Update Endpoint
+**Base URL:** `/sprinkler/v1/socketio`
 
-> Update Structure:<br>
+## Structures
+
+### Sprinkler Update
+
+This information is sent bidirectionally.
+
 ```python
 [
     {
@@ -34,7 +37,7 @@
 ]
 ```
 
-<br>
+## Relay Update Endpoint
 
 > `[SOCKETIO]` /update<br>
-> The `Update Structure` is sent to the client in the `update` channel
+> The `Sprinkler Update` is sent to the client in the `update` channel
