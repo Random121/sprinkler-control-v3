@@ -30,7 +30,9 @@ load_dotenv()
 flask_socketio = SocketIO(cors_allowed_origins="*")
 flask_cors = CORS()
 
-mongo_client: MongoClient = pymongo.MongoClient(os.getenv("SPRINKLER_MONGODB_CONNECTION_STRING"))
+mongo_client: MongoClient = pymongo.MongoClient(
+    os.getenv("SPRINKLER_MONGODB_CONNECTION_STRING")
+)
 sprinkler_control_db = mongo_client["sprinkler_control"]
 schedules_collection = sprinkler_control_db["schedules"]
 

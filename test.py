@@ -3,6 +3,7 @@ import logging
 from sprinkler_server import create_app
 from flask_config import DebugConfig
 
+
 # NOTE: remember to change factory of relay board to MockFactory()
 def main():
     config = DebugConfig()

@@ -1,24 +1,17 @@
-# sprinkler-control-v3
+# Sprinkler Controller
+
+Python backend for controlling sprinklers.
+
+Frontend code can be found [here](https://github.com/Random121/sprinkler-control-v3-frontend/tree/new).
 
 ## Features
 - Web-based control panel
-- Comprehensive API
-- Manual sprinkler control with timing
-- Automatically sprinkler control through schedules
-
-<br>
+- RESTful API for interacting with sprinklers and scheduling
+- Manual control of sprinklers
+- Automatically control sprinklers through schedules
 
 ## Documentation
-The documentation can be found in the `docs/` folder<br>
-Frontend code can be found [here](https://github.com/Random121/sprinkler-control-v3-frontend/tree/new)
+Documentation can be found in the `docs` folder.
 
-<br>
-
-## TODO List
-1. [DONE] Extend jsonschema validator to include custom error messages
-2. [DONE] implement front end in Vue ~~or React~~
-
-<br>
-
-## NOTE
-Validation RegExp for 24 hour time is a modification from [this site](https://www.oreilly.com/library/view/regular-expressions-cookbook/9781449327453/ch04s06.html) to make the seconds optional.
+## Attributions
+RegExp for validating 24 hour time is a modification from the one provided on [this site](https://www.oreilly.com/library/view/regular-expressions-cookbook/9781449327453/ch04s06.html) to make the seconds optional.

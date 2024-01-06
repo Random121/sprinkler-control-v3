@@ -21,7 +21,9 @@ def control_page():
     flask_config = current_app.config
     return render_template(
         "index.html",
-        server_host=flask_config["HOST"] if flask_config["DEBUG"] else get_lan_ip_address(),
+        server_host=flask_config["HOST"]
+        if flask_config["DEBUG"]
+        else get_lan_ip_address(),
     )
 
 
@@ -30,5 +32,7 @@ def schedule_page():
     flask_config = current_app.config
     return render_template(
         "index.html",
-        server_host=flask_config["HOST"] if flask_config["DEBUG"] else get_lan_ip_address(),
+        server_host=flask_config["HOST"]
+        if flask_config["DEBUG"]
+        else get_lan_ip_address(),
     )
