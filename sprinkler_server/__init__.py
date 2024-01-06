@@ -1,9 +1,11 @@
 import atexit
 import json
 import logging
+import os
 import eventlet
+from dotenv import load_dotenv
 from pymongo.mongo_client import MongoClient
-# from gpiozero.pins.mock import MockFactory
+from gpiozero.pins.mock import MockFactory
 from gpiozero.pins.pigpio import PiGPIOFactory
 
 # patch eventlet so threading works
@@ -23,11 +25,12 @@ from .models.RelayControl import RelayBoardController
 from .models.RequestNormalizer import ActionNormalizer
 from .models.Scheduler import Scheduler, ScheduleManager
 
+load_dotenv()
 
 flask_socketio = SocketIO(cors_allowed_origins="*")
 flask_cors = CORS()
 
-mongo_client: MongoClient = pymongo.MongoClient(config.MONGODB_URL)
+mongo_client: MongoClient = pymongo.MongoClient(os.getenv("SPRINKLER_MONGODB_CONNECTION_STRING"))
 sprinkler_control_db = mongo_client["sprinkler_control"]
 schedules_collection = sprinkler_control_db["schedules"]
 
@@ -41,7 +44,7 @@ with open("sprinkler_server/schemas/schedule.schema.json") as schema:
 pin_mapping, info_mapping = parse_relay_config(config.RELAY_CONFIG)
 
 action_normalizer = ActionNormalizer(config.ACTION_TEMPLATE_V2, ACTION_SCHEMA)
-relay_board = RelayBoard(pin_mapping, pin_factory=PiGPIOFactory())
+relay_board = RelayBoard(pin_mapping, pin_factory=MockFactory())
 relay_board_controller = RelayBoardController(
     relay_board,
     action_normalizer,

@@ -1,5 +1,9 @@
 import logging
+import os
 
+from dotenv import load_dotenv
+
+load_dotenv()
 
 class DebugConfig(object):
     DEBUG = True
@@ -25,7 +29,7 @@ class ProductionConfig(object):
     HOST = "0.0.0.0"
     PORT = 42488
 
-    SECRET_KEY = "90502c52eeb185f4e709069413f260393ba741b5637f6f026da97df7fa489e40d644ebc8382459e0823994a39d08ca006d4aa7a58b9e0453b4129af7904fddbb"
+    SECRET_KEY = os.getenv("FLASK_SECRET_KEY")
 
     LOGGING_CONFIG = {
         "level": logging.INFO,

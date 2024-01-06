@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, redirect, url_for
+from flask import Blueprint, current_app, render_template, redirect, url_for
 
 from sprinkler_server.utils import get_lan_ip_address
 
@@ -18,15 +18,17 @@ def default_page():
 
 @panel_blueprint.route("/control")
 def control_page():
+    flask_config = current_app.config
     return render_template(
         "index.html",
-        server_host=get_lan_ip_address(),
+        server_host=flask_config["HOST"] if flask_config["DEBUG"] else get_lan_ip_address(),
     )
 
 
 @panel_blueprint.route("/schedule")
 def schedule_page():
+    flask_config = current_app.config
     return render_template(
         "index.html",
-        server_host=get_lan_ip_address(),
+        server_host=flask_config["HOST"] if flask_config["DEBUG"] else get_lan_ip_address(),
     )

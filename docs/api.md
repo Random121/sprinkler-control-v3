@@ -2,8 +2,6 @@
 > Base URL:<br>
 > `/sprinkler/v1/api`
 
-<br>
-
 ## Relays Endpoints
 
 > Action Structure:<br>
@@ -14,28 +12,18 @@
 }
 ```
 
-<br>
-
 > `[GET]` /relays<br>
 > Get status of all relays
-
-<br>
 
 > `[POST]` /relays<br>
 > Perform an action on all relays
 
-<br>
-
 > `[GET]` /relays/{relay_id}<br>
 > Get status of relay specified by `relay_id`
-
-<br>
 
 > `[POST]` /relays/{relay_id}<br>
 > Perform an action on relay specified by `relay_id`<br>
 > The `enable` action requires a `duration` argument (in seconds)
-
-<br>
 
 ## Scheduler Endpoints
 

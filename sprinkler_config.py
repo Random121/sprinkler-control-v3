@@ -16,11 +16,6 @@ SOCKETIO_UPDATE_ENDPOINT = "/update"
 
 SOCKETIO_UPDATE_PATH = f"{SOCKETIO_BASE_PATH}{SOCKETIO_UPDATE_ENDPOINT}"
 
-# MongoDB configurations
-MONGODB_URL = (
-    "mongodb+srv://user:user@cluster0.di3hb.mongodb.net/?retryWrites=true&w=majority"
-)
-
 # Relay configurations
 RELAY_CONFIG = [
     {

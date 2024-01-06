@@ -13,7 +13,12 @@ class RelayDevice(OutputDevice):
         pin_factory: Factory = None,
         timer_end_callback: Callable = None,
     ):
-        super().__init__(pin, active_high, initial_value, pin_factory)
+        super().__init__(
+            pin,
+            active_high=active_high,
+            initial_value=initial_value,
+            pin_factory=pin_factory,
+        )
         self._timer_end_callback = timer_end_callback
         self._timer: BetterTimer = None
 
